@@ -11,10 +11,10 @@ Story:
    **I need** [function]  
    **So that** [benefit]  
    
-Additional information:         
+Additional information: <br>        
    [document what you know]
 
-Acceptance criterion: 
-   Given [some context]
-   When [certain action is taken]
+Acceptance criterion: <br>
+   Given [some context] <br>
+   When [certain action is taken] <br>
    Then [the outcome of action is observed]
