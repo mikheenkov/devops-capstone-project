@@ -139,7 +139,11 @@ class TestAccountService(TestCase):
             f"{BASE_URL}/{account.id}",
             content_type="application/json"
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_nonexisting_account(self):
+        response = self.client.get(f'BASE_URL/-1/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_account(self):
         account = self._create_accounts(1)[0]
