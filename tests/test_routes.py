@@ -123,19 +123,51 @@ class TestAccountService(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
-    # ADD YOUR TEST CASES HERE ...
     def test_list_accounts(self):
         response = self.client.get(BASE_URL)
+        self.assertNotEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_account(self):
-        response = self.client.get(BASE_URL + '/1/')
+        account = AccountFactory()
+        response = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.get(BASE_URL + str(account.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_account(self):
-        response = self.client.put(BASE_URL + '/1/')
+        account = AccountFactory()
+        serialized_obj = account.serialize()
+        response = self.client.post(
+            BASE_URL,
+            json=serialized_obj,
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_email = 'gringo@gringomail.com'
+        updated_serialized_obj = (
+            serialized_obj.update({'email': new_email})
+        )
+        response = self.client.put(
+            BASE_URL + str(account.id),
+            json=updated_serialized_obj,
+            content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_account(self):
-        response = self.client.delete(BASE_URL + '/1/')
+        account = AccountFactory()
+        response = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.delete(BASE_URL + str(account.id))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
