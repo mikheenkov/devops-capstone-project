@@ -124,50 +124,42 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_list_accounts(self):
+        number_of_accounts = 5
+        self._create_accounts(number_of_accounts)
+
         response = self.client.get(BASE_URL)
         self.assertNotEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(response.get_json()) == number_of_accounts)
 
-    def test_read_account(self):
-        account = AccountFactory()
-        response = self.client.post(
-            BASE_URL,
-            json=account.serialize(),
+    def test_get_account(self):
+        account = self._create_accounts(1)[0]
+
+        response = self.client.get(
+            f"{BASE_URL}/{account.id}",
             content_type="application/json"
         )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.get(BASE_URL + str(account.id))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_update_account(self):
-        account = AccountFactory()
+        account = self._create_accounts(1)[0]
         serialized_obj = account.serialize()
-        response = self.client.post(
-            BASE_URL,
-            json=serialized_obj,
-            content_type="application/json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         new_email = 'gringo@gringomail.com'
-        updated_serialized_obj = (
-            serialized_obj.update({'email': new_email})
-        )
+        updated_serialized_obj = serialized_obj.copy()
+        updated_serialized_obj.update({'email': new_email})
+
         response = self.client.put(
-            BASE_URL + str(account.id),
+            f'BASE_URL/{account.id}',
             json=updated_serialized_obj,
             content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.get_json()['email'], new_email)
 
     def test_delete_account(self):
-        account = AccountFactory()
-        response = self.client.post(
-            BASE_URL,
-            json=account.serialize(),
-            content_type="application/json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        account = self._create_accounts(1)[0]
 
-        response = self.client.delete(BASE_URL + str(account.id))
+        response = self.client.delete(f'BASE_URL/{account.id}')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(len(response.content) == 0)
