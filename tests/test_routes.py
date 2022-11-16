@@ -142,7 +142,7 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_nonexisting_account(self):
-        response = self.client.get(f'BASE_URL/-1/')
+        response = self.client.get(f'{BASE_URL}/-1')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_account(self):
@@ -154,16 +154,24 @@ class TestAccountService(TestCase):
         updated_serialized_obj.update({'email': new_email})
 
         response = self.client.put(
-            f'BASE_URL/{account.id}',
+            f'{BASE_URL}/{account.id}',
             json=updated_serialized_obj,
             content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.get_json()['email'], new_email)
 
+    def test_update_nonexisting_account(self):
+        response = self.client.put(f'{BASE_URL}/-1')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_delete_account(self):
         account = self._create_accounts(1)[0]
 
-        response = self.client.delete(f'BASE_URL/{account.id}')
+        response = self.client.delete(f'{BASE_URL}/{account.id}')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertTrue(len(response.content) == 0)
+        self.assertTrue(len(response.data) == 0)
+
+    def test_delete_nonexisting_account(self):
+        response = self.client.delete(f'{BASE_URL}/-1')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
